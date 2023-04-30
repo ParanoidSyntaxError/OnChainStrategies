@@ -62,7 +62,8 @@ contract OnchainStrategies is ERC721 {
             (_basicStrategies[tokenId], _intervalStrategies[tokenId]) = abi.decode(data, (BasicStrategy, IntervalStrategy));
         } else if(strategyType == 1) {
             // Flat
-            // TODO
+            (_basicStrategies[tokenId], _flatStrategies[tokenId]) = abi.decode(data, (BasicStrategy, FlatStrategy));
+            require(_flatStrategies[tokenId].flat != 0);
         } else if(strategyType == 2) {
             // Percent
             (_basicStrategies[tokenId], _percentStrategies[tokenId]) = abi.decode(data, (BasicStrategy, PercentStrategy));
@@ -77,41 +78,43 @@ contract OnchainStrategies is ERC721 {
         }
     }
 
+    function burn(uint256 tokenId) external {
+        require(ownerOf(tokenId) == msg.sender);
+        _burn(tokenId);
+    }
+
     function checkStrategies(uint256 startId, uint256 length) external view returns (uint256[] memory) {
         uint256[] memory maxIds = new uint256[](length);         
         
         uint256 renewCount;
         for(uint256 i; i < length; i++) {
-            if(_strategiesTypes[startId + i] == 0) {
+            uint256 id = startId + i;
+            if(_strategiesTypes[id] == 0) {
                 // Interval
-                if(block.timestamp > _intervalStrategies[startId + i].lastTimestamp + _intervalStrategies[startId + i].interval) {
-                    if(_approvers[startId + i] == ownerOf(startId + i) && 
-                    _basicStrategies[startId + i].amount <= _basicStrategies[startId + i].allocation && 
-                    _basicStrategies[startId + i].amount <= IERC20(_basicStrategies[startId + i].tokenIn).allowance(ownerOf(startId + i), address(this))) {
-                        maxIds[renewCount] = startId + i;
+                if(block.timestamp > _intervalStrategies[id].lastTimestamp + _intervalStrategies[id].interval) {
+                    if(_approvers[id] == ownerOf(id) && 
+                    _basicStrategies[id].amount <= _basicStrategies[id].allocation && 
+                    _basicStrategies[id].amount <= IERC20(_basicStrategies[id].tokenIn).allowance(ownerOf(id), address(this))) {
+                        maxIds[renewCount] = id;
                         renewCount++;
                     }
                 }
-            } else if(_strategiesTypes[startId + i] == 1) {
+            } else if(_strategiesTypes[id] == 1) {
                 // Flat
-                // TODO
-            } else if(_strategiesTypes[startId + i] == 2) {
+                (,int256 response,,,) = AggregatorV3Interface(_flatStrategies[id].aggregator).latestRoundData();
+                int256 flatChange = _flatChange(response, _flatStrategies[id].lastResponse);
+                if(_abs(flatChange) >= _abs(_flatStrategies[id].flat)) {
+                    maxIds[renewCount] = id;
+                    renewCount++;
+                }
+            } else if(_strategiesTypes[id] == 2) {
                 // Percent
                 // TODO: More complex signed math
-                (,int256 response,,,) = AggregatorV3Interface(_percentStrategies[startId + i].aggregator).latestRoundData();
-                int256 change = (((response - _percentStrategies[startId + i].lastResponse) * 100000) / _percentStrategies[startId + i].lastResponse);
-                if(_percentStrategies[startId + i].percent < 0) {
-                    // Response decreases
-                    if(change <= _percentStrategies[startId + i].percent) {
-                        maxIds[renewCount] = startId + i;
-                        renewCount++;
-                    }
-                } else {
-                    // Response increases
-                    if(change >= _percentStrategies[startId + i].percent) {
-                        maxIds[renewCount] = startId + i;
-                        renewCount++;
-                    }
+                (,int256 response,,,) = AggregatorV3Interface(_percentStrategies[id].aggregator).latestRoundData();
+                int256 percentChange = _percentChange(response, _percentStrategies[id].lastResponse);
+                if(_abs(percentChange) >= _abs(_percentStrategies[id].percent)) {
+                    maxIds[renewCount] = id;
+                    renewCount++;
                 }
             }
         }
@@ -140,18 +143,16 @@ contract OnchainStrategies is ERC721 {
                 _intervalStrategies[ids[i]].lastTimestamp = block.timestamp;
             } else if(_strategiesTypes[ids[i]] == 1) {
                 // Flat
-                // TODO
+                (,int256 response,,,) = AggregatorV3Interface(_flatStrategies[ids[i]].aggregator).latestRoundData();
+                int256 flatChange = _flatChange(response, _flatStrategies[ids[i]].lastResponse);
+                require(_abs(flatChange) >= _abs(_flatStrategies[ids[i]].flat));
+
+                _flatStrategies[ids[i]].lastResponse = response;
             } else if(_strategiesTypes[ids[i]] == 2) {
                 // Percent
                 (,int256 response,,,) = AggregatorV3Interface(_percentStrategies[ids[i]].aggregator).latestRoundData();
-                int256 change = (((response - _percentStrategies[ids[i]].lastResponse) * 100000) / _percentStrategies[ids[i]].lastResponse);
-                if(_percentStrategies[ids[i]].percent < 0) {
-                    // Response decreases
-                    require(change <= _percentStrategies[ids[i]].percent);
-                } else {
-                    // Response increases
-                    require(change >= _percentStrategies[ids[i]].percent);
-                }
+                int256 percentChange = _percentChange(response, _percentStrategies[ids[i]].lastResponse);
+                require(_abs(percentChange) >= _abs(_percentStrategies[ids[i]].percent));
 
                 _percentStrategies[ids[i]].lastResponse = response;
             }
@@ -180,5 +181,17 @@ contract OnchainStrategies is ERC721 {
 
     function _beforeTokenTransfer(address /* from */, address /* to */, uint256 tokenId) internal virtual override {
         _approvers[tokenId] = address(0);
+    }
+
+    function _abs(int256 value) internal pure returns (int256) {
+        return value >= 0 ? value : -value;
+    }
+
+    function _percentChange(int256 a, int256 b) internal pure returns (int256) {
+        return ((a - b) * 100000) / b;
+    }
+
+    function _flatChange(int256 a, int256 b) internal pure returns (int256) {
+        return a - b;
     }
 }
