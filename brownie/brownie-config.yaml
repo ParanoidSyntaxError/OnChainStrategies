@@ -1,7 +1,7 @@
 compiler:
   solc:
     remappings:
-      - '@chainlink=smartcontractkit/chainlink-brownie-contracts@0.4.1'
+      - '@chainlink=smartcontractkit/chainlink-brownie-contracts@0.6.1'
       - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.6.0'
       - '@uniswap/v3-core=Uniswap/v3-core@1.0.0'
       - '@uniswap/v3-periphery=Uniswap/v3-periphery@1.3.0'

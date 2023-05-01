@@ -3,36 +3,16 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
 
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-contract OnchainStrategies is ERC721 {
-    struct BasicStrategy {
-        address tokenIn;
-        address tokenOut;
-        uint256 amount;
-        uint24 poolFee;
-        uint256 allocation;
-    }
+import "./interfaces/IOnChainStrategies.sol";
 
-    struct IntervalStrategy {
-        uint256 interval;
-        uint256 lastTimestamp;
-    }
-
-    struct FlatStrategy {
-        address aggregator;
-        int256 flat;
-        int256 lastResponse;
-    }
-
-    struct PercentStrategy {
-        address aggregator;
-        int256 percent;
-        int256 lastResponse;
-    }
+contract OnChainStrategies is ERC721, IOnChainStrategies {
+    using Strings for uint256;
 
     mapping(uint256 => uint256) internal _strategiesTypes;
 
@@ -48,25 +28,26 @@ contract OnchainStrategies is ERC721 {
 
     ISwapRouter public immutable SwapRouter;
 
-    constructor(address uniswapSwapRouter) ERC721("Onchain Strategies", "OCS") {
+    constructor(address uniswapSwapRouter) ERC721("OnChain Strategies", "OCS") {
         SwapRouter = ISwapRouter(uniswapSwapRouter);
     }
 
-    function mint(uint256 strategyType, address recepient, bool approved, bytes memory data) external returns (uint256 tokenId) {
+    function mint(uint256 strategyType, address recepient, bool approved, BasicStrategy memory basicStrategy, bytes memory data) external override returns (uint256 tokenId) {
         tokenId = _totalSupply;
 
         _strategiesTypes[tokenId] = strategyType;
+        _basicStrategies[tokenId] = basicStrategy;
 
         if(strategyType == 0) {
             // Interval
-            (_basicStrategies[tokenId], _intervalStrategies[tokenId]) = abi.decode(data, (BasicStrategy, IntervalStrategy));
+            _intervalStrategies[tokenId] = abi.decode(data, (IntervalStrategy));
         } else if(strategyType == 1) {
             // Flat
-            (_basicStrategies[tokenId], _flatStrategies[tokenId]) = abi.decode(data, (BasicStrategy, FlatStrategy));
+            _flatStrategies[tokenId] = abi.decode(data, (FlatStrategy));
             require(_flatStrategies[tokenId].flat != 0);
         } else if(strategyType == 2) {
             // Percent
-            (_basicStrategies[tokenId], _percentStrategies[tokenId]) = abi.decode(data, (BasicStrategy, PercentStrategy));
+            _percentStrategies[tokenId] = abi.decode(data, (PercentStrategy));
             require(_percentStrategies[tokenId].percent != 0);
         }
 
@@ -83,7 +64,7 @@ contract OnchainStrategies is ERC721 {
         _burn(tokenId);
     }
 
-    function checkStrategies(uint256 startId, uint256 length) external view returns (uint256[] memory) {
+    function checkStrategies(uint256 startId, uint256 length) external view override returns (uint256[] memory) {
         uint256[] memory maxIds = new uint256[](length);         
         
         uint256 renewCount;
@@ -109,7 +90,6 @@ contract OnchainStrategies is ERC721 {
                 }
             } else if(_strategiesTypes[id] == 2) {
                 // Percent
-                // TODO: More complex signed math
                 (,int256 response,,,) = AggregatorV3Interface(_percentStrategies[id].aggregator).latestRoundData();
                 int256 percentChange = _percentChange(response, _percentStrategies[id].lastResponse);
                 if(_abs(percentChange) >= _abs(_percentStrategies[id].percent)) {
@@ -131,7 +111,7 @@ contract OnchainStrategies is ERC721 {
         return adjustedIds;
     }
 
-    function upkeepStrategies(uint256[] memory ids) external {
+    function upkeepStrategies(uint256[] memory ids) external override {
         for(uint256 i; i < ids.length; i++) {
             require(_basicStrategies[ids[i]].allocation >= _basicStrategies[ids[i]].amount);
             require(_approvers[ids[i]] == ownerOf(ids[i]));
@@ -179,6 +159,27 @@ contract OnchainStrategies is ERC721 {
         }
     }
 
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+
+        return string(abi.encodePacked(
+            "data:application/json;base64,",
+            Base64.encode(bytes(string(
+                abi.encodePacked(
+                    '{"name": "OnChain Strategy #',
+                    tokenId.toString(),
+                    '", "description": "',
+                    "Complex investment strategies without losing custody of your tokens.", 
+                    '", "image": "data:image/svg+xml;base64,',
+                    Base64.encode(bytes(_svgImage(tokenId))),
+                    '", "attributes":',
+                    //_hashMetadata(hash, id),
+                    "}"
+                )
+            )))
+        ));
+    }
+
     function _beforeTokenTransfer(address /* from */, address /* to */, uint256 tokenId) internal virtual override {
         _approvers[tokenId] = address(0);
     }
@@ -188,10 +189,54 @@ contract OnchainStrategies is ERC721 {
     }
 
     function _percentChange(int256 a, int256 b) internal pure returns (int256) {
-        return ((a - b) * 100000) / b;
+        // TODO: More complex signed math
+        return ((a - b) * 10000) / b;
     }
 
     function _flatChange(int256 a, int256 b) internal pure returns (int256) {
         return a - b;
+    }
+
+    function _svgImage(uint256 tokenId) internal view returns (string memory) {
+        string memory name;
+        string memory value;
+
+        if(_strategiesTypes[tokenId] == 0) {
+            // Interval
+            name = "Interval Strategy";
+            value = string(abi.encodePacked(_intervalStrategies[tokenId].interval.toString(), "s"));
+        } else if(_strategiesTypes[tokenId] == 1) {
+            // Flat
+            name = "Flat Strategy";
+            value = uint256(_abs(_flatStrategies[tokenId].flat)).toString();
+            if(_flatStrategies[tokenId].flat < 0) {
+                value = string(abi.encodePacked("-", value));
+            }
+        } else if(_strategiesTypes[tokenId] == 2) {
+            // Percent
+            name = "Percentage Strategy";
+            int256 prefix = _percentStrategies[tokenId].percent / 100;
+            uint256 suffix = uint256(_abs(_percentStrategies[tokenId].percent % 100));
+
+            string memory mid = ".";
+            if(suffix < 10) {   
+                mid = string(abi.encodePacked(mid, "0"));
+            }
+
+            value = string(abi.encodePacked(uint256(_abs(prefix)).toString(), mid, suffix.toString()));
+
+            if(prefix < 0) {
+                value = string(abi.encodePacked("-", value));
+            }
+            value = string(abi.encodePacked(value, "%"));
+        }
+
+        return string(abi.encodePacked(
+            "<svg viewBox='0 0 160 240' preserveAspectRatio='xMinYMin meet' id='doc' xmlns='http://www.w3.org/2000/svg'><style>#doc { shape-rendering: crispedges; }.name { font: bold 12px monospace; fill: white; }.value { font: italic 16px monospace; fill: white; }.title { font: 12px monospace; fill: white; }</style><rect width='100%' height='100%' fill='black'/><text x='20' y='50' class='name'>",
+            name,
+            "</text><text x='20' y='80' class='value'>",
+            value,
+            "</text><text x='20' y='220' class='title'>OnChain Strategies</text></svg>"
+        ));
     }
 }
