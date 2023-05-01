@@ -32,6 +32,10 @@ contract OnChainStrategies is ERC721, IOnChainStrategies {
         SwapRouter = ISwapRouter(uniswapSwapRouter);
     }
 
+    function totalSupply() external view override returns (uint256) {
+        return _totalSupply;
+    }
+
     function mint(uint256 strategyType, address recepient, bool approved, BasicStrategy memory basicStrategy, bytes memory data) external override returns (uint256 tokenId) {
         tokenId = _totalSupply;
 
@@ -59,14 +63,31 @@ contract OnChainStrategies is ERC721, IOnChainStrategies {
         }
     }
 
-    function burn(uint256 tokenId) external {
+    function burn(uint256 tokenId) external override {
         require(ownerOf(tokenId) == msg.sender);
         _burn(tokenId);
     }
 
+    function setAllocation(uint256 tokenId, uint256 allocation) external override {
+        require(ownerOf(tokenId) == msg.sender);
+        _basicStrategies[tokenId].allocation = allocation;
+    }
+
+    function setApprover(uint256 tokenId, bool approved) external override {
+        require(ownerOf(tokenId) == msg.sender);
+        if(approved) {
+            _approvers[tokenId] = msg.sender;
+        } else {
+            _approvers[tokenId] = address(0);
+        }
+    }
+
     function checkStrategies(uint256 startId, uint256 length) external view override returns (uint256[] memory) {
-        uint256[] memory maxIds = new uint256[](length);         
-        
+        // TODO: Maybe adjust length instead of reverting
+        require(_totalSupply <= startId + length);
+
+        uint256[] memory maxIds = new uint256[](length);
+
         uint256 renewCount;
         for(uint256 i; i < length; i++) {
             uint256 id = startId + i;
