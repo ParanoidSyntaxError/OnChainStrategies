@@ -1,12 +1,12 @@
 from brownie.network.state import Chain
 
-# Polygon Mumbai
+# ETH Mainnet
 # Uniswap V3 Swap Router: 0xE592427A0AEce92De3Edee1F18E0157C05861564
 
 class env:
     chain = Chain()
 
     swapRouter = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-    usdc = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
-    link = "0xb0897686c545045aFc77CF20eC7A532E3120E0F1"
-    linkUsdFeed = "0xd9FFdb71EbE7496cC440152d43986Aae0AB76665"
+    weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    link = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+    linkEthFeed = "0xdc530d9457755926550b59e8eccdae7624181557"

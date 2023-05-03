@@ -91,15 +91,21 @@ contract OnChainStrategies is ERC721, IOnChainStrategies {
         uint256 renewCount;
         for(uint256 i; i < length; i++) {
             uint256 id = startId + i;
+            address owner = ownerOf(id);
+            IERC20 tokenIn = IERC20(_basicStrategies[id].tokenIn);
+
+            if(_approvers[id] != owner || 
+                _basicStrategies[id].amount > _basicStrategies[id].allocation || 
+                _basicStrategies[id].amount > tokenIn.allowance(owner, address(this)) ||
+                _basicStrategies[id].amount > tokenIn.balanceOf(owner)) {
+                continue;
+            }
+
             if(_strategiesTypes[id] == 0) {
                 // Interval
                 if(block.timestamp > _intervalStrategies[id].lastTimestamp + _intervalStrategies[id].interval) {
-                    if(_approvers[id] == ownerOf(id) && 
-                    _basicStrategies[id].amount <= _basicStrategies[id].allocation && 
-                    _basicStrategies[id].amount <= IERC20(_basicStrategies[id].tokenIn).allowance(ownerOf(id), address(this))) {
-                        maxIds[renewCount] = id;
-                        renewCount++;
-                    }
+                    maxIds[renewCount] = id;
+                    renewCount++;
                 }
             } else if(_strategiesTypes[id] == 1) {
                 // Flat
