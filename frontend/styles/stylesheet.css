@@ -1,0 +1,121 @@
+body, html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.background {
+    background-image: radial-gradient(#080808 20%, transparent 0%);
+    background-color: #0d0d0d;
+    background-position: 0, 0, 0, 0;
+    background-size: 10px 10px;
+}
+
+.title {
+    color: white;
+    font-family: 'System', monospace;
+    font-size: 64px;
+}
+.sub-title {
+    color: white;
+    font-family: 'System', monospace;
+    font-size: 32px;
+}
+.body {
+    color: white;
+    font-family: 'System', monospace;
+    font-size: 16px;
+}
+
+.button {
+    color: white;
+    background-color: #080808;
+    border: 4px solid white;
+    width: fit-content;
+    padding: 10px 15px;
+    font-size: 24px;
+    font-family: 'System', monospace;
+    border-radius: 12px;
+}
+.button:enabled:hover {
+    filter: brightness(0.9);
+}
+
+.info-tarot-title {
+    color: white;
+    font-family: 'System', monospace;
+    font-size: 48px;
+    text-align: left;
+}
+.info-tarot-body {
+    color: lightgrey;
+    font-family: 'System', monospace;
+    font-size: 21px;
+    text-align: left;
+}
+.info-tarot-parent {
+    width: 900px;
+    text-align: center;
+    margin: 0px auto;
+}
+.info-tarot-grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 60px;
+    justify-content: center;
+}
+.info-tarot {
+    border: 5px solid white; 
+    border-radius: 20px; 
+    width: 100%;
+}
+.info-tarot-unselected {
+    box-shadow: 0px 0px 7px grey;
+    animation : shrink 0.2s ease-in forwards;
+}
+.info-tarot-selected {
+    box-shadow: 0px 0px 7px white;
+    animation : grow 0.2s ease-out forwards;
+}
+@keyframes grow {
+    0% {
+      transform: scale(1); 
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.1);
+      opacity: 0.75;
+    }
+}
+@keyframes shrink {
+    0% {
+        transform: scale(1.1);
+        opacity: 0.75;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+}
+
+
+.tarot-parent {
+    width: max-content;
+    position: absolute;
+    margin-top: 150px;
+}
+.tarot {
+    display: inline-block;
+    opacity: 5%; 
+    border: 10px solid white; 
+    border-radius: 20px;
+    animation : slide 20s linear infinite;
+    margin-right: 20px;
+}
+@keyframes slide {
+    0% {
+      transform: translatex(0%)
+    }
+    100% {
+      transform: translatex(calc(-300% - 70px))
+    }
+}
