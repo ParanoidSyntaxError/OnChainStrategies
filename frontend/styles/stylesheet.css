@@ -101,7 +101,6 @@ body, html {
 .tarot-parent {
     width: max-content;
     position: absolute;
-    margin-top: 150px;
 }
 .tarot {
     display: inline-block;
