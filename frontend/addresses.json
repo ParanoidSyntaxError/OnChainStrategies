@@ -1,0 +1,70 @@
+{
+    "tokens": {
+        "mumbai": [
+            {
+                "label": "USDT",
+                "address": "0xA02f6adc7926efeBBd59Fd43A84f4E0c0c91e832"
+            },
+            {
+                "label": "USDC",
+                "address": "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23"
+            },
+            {
+                "label": "WMATIC",
+                "address": "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
+            },
+            {
+                "label": "LINK",
+                "address": "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+            }
+        ]
+    },
+    "oracles":{
+        "mumbai": [
+            {
+                "label": "BTC/USD",
+                "address": "0x007A22900a3B98143368Bd5906f8E17e9867581b"
+            },
+            {
+                "label": "DAI/USD",
+                "address": "0x0FCAa9c899EC5A91eBc3D5Dd869De833b06fB046"
+            },
+            {
+                "label": "ETH/USD",
+                "address": "0x0715A7794a1dc8e42615F059dD6e406A6594651A"
+            },
+            {
+                "label": "EUR/USD",
+                "address": "0x7d7356bF6Ee5CDeC22B216581E48eCC700D0497A"
+            },
+            {
+                "label": "LINK/MATIC",
+                "address": "0x12162c3E810393dEC01362aBf156D7ecf6159528"
+            },
+            {
+                "label": "LINK/USD",
+                "address": "0x1C2252aeeD50e0c9B64bDfF2735Ee3C932F5C408"
+            },
+            {
+                "label": "MATIC/USD",
+                "address": "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada"
+            },
+            {
+                "label": "SAND/USD",
+                "address": "0x9dd18534b8f456557d11B9DDB14dA89b2e52e308"
+            },
+            {
+                "label": "SOL/USD",
+                "address": "0xEB0fb293f368cE65595BeD03af3D3f27B7f0BD36"
+            },
+            {
+                "label": "USDC/USD",
+                "address": "0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0"
+            },
+            {
+                "label": "USDT/USD",
+                "address": "0x92C09849638959196E976289418e5973CC96d645"
+            }
+        ]
+    }
+}

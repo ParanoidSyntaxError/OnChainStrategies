@@ -26,6 +26,53 @@ body, html {
     font-size: 16px;
 }
 
+.app-title {
+    color: white;
+    font-family: 'System', monospace;
+    font-size: 32px;
+}
+.app-sub-title {
+    color: white;
+    font-family: 'System', monospace;
+    font-size: 24px;
+}
+.app-body {
+    color: white;
+    font-family: 'System', monospace;
+    font-size: 18px;
+    margin: 4px 0px;
+}
+.app-select {
+    color: black;
+    background-color: white;
+    border: none;
+    width: fit-content;
+    padding: 5px 10px;
+    font-size: 18px;
+    font-family: 'System', monospace;
+    border-radius: 10px;
+}
+.app-input {
+    color: black;
+    background-color: white;
+    border: none;
+    width: 440px;
+    padding: 5px 10px;
+    font-size: 18px;
+    font-family: 'System', monospace;
+    border-radius: 10px;
+}
+.app-button {
+    color: black;
+    background-color: white;
+    border: none;
+    width: fit-content;
+    padding: 10px 20px;
+    font-size: 21px;
+    font-family: 'System', monospace;
+    border-radius: 10px;
+}
+
 .button {
     color: white;
     background-color: #080808;

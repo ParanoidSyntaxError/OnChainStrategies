@@ -11,12 +11,136 @@
         <meta name="description" content="">
     </head>
     <body class="background">
-
         <header style="position: sticky; top: 10; z-index: 1;">
             <a href="https://onchainstrategies.org">
                 <img src="../images/ocs_logo.svg" style="position: fixed; width: 100px; left: 3vw; top: 27px;">
             </a>
         </header>
 
+        <div style="margin-top: 10vh;">
+            <div style="background-color: #222222; width: 440px; margin: 0px auto; border-radius: 15px; padding: 25px;">
+                <!-- Title -->
+                <div class="app-title">
+                    New Strategy
+                </div>
+                <br>
+                
+                <!-- Startegy type -->
+                <div class="app-body">
+                    Strategy type
+                </div>
+                <select id="select-strategy-type" class="app-select" required>
+                    <option value="" disabled selected>Select option</option>
+                    <option value="interval">Interval</option>
+                    <option value="flat">Flat</option>
+                    <option value="percent">Percent</option>
+                </select>
+                <br><br>
+
+                <!-- Token in -->
+                <div class="app-body">
+                    Token in
+                </div>
+                <select id="select-token-in" class="app-select" required>
+                    <option value="" disabled selected>Select option</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <br><br>
+                <div id="div-custom-token-in" hidden>
+                    <input type="text" placeholder="Custom token in" class="app-input">
+                    <br><br>
+                </div>
+
+                <!-- Token out -->
+                <div class="app-body">
+                    Token out
+                </div>
+                <select id="select-token-out" class="app-select" required>
+                    <option value="" disabled selected>Select option</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <br>
+                <div id="div-custom-token-out" hidden>
+                    <br>
+                    <input type="text" placeholder="Custom token out" class="app-input">
+                </div>
+
+                <!-- Interval params -->
+                <div id="div-interval-params" hidden>
+                    <br><br>
+                    <div class="app-sub-title">
+                        Interval Strategy Parameters
+                    </div>
+                    <br>
+                    <div class="app-body">
+                        Interval duration
+                    </div>
+                    <input type="number" placeholder="Seconds" class="app-input" required>
+                    <br>
+                </div>
+
+                <!-- Flat params -->
+                <div id="div-flat-params" hidden>
+                    <br><br>
+                    <div class="app-sub-title">
+                        Flat Strategy Parameters
+                    </div>
+                    <br>
+                    <div class="app-body">
+                        Data feed
+                    </div>
+                    <select id="select-flat-oracle" class="app-select" required>
+                        <option value="" disabled selected>Select</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <br><br>
+                    <div id="div-flat-custom-oracle" hidden>
+                        <input type="text" placeholder="Custom oracle" class="app-input">
+                        <br><br>
+                    </div>
+                    <div class="app-body">
+                        Flat change
+                    </div>
+                    <input type="number" placeholder="Amount" class="app-input" required>
+                    <br>
+                </div>
+
+                <!-- Percent params -->
+                <div id="div-percent-params" hidden>
+                    <br><br>
+                    <div class="app-sub-title">
+                        Percent Strategy Parameters
+                    </div>
+                    <br>                    
+                    <div class="app-body">
+                        Data feed
+                    </div>
+                    <select id="select-percent-oracle" class="app-select" required>
+                        <option value="" disabled selected>Select</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <br><br>
+                    <div id="div-percent-custom-oracle" hidden>
+                        <input type="text" placeholder="Custom oracle" class="app-input">
+                        <br><br>
+                    </div>
+                    <div class="app-body">
+                        Percent change
+                    </div>
+                    <input type="number" placeholder="Percent" class="app-input" required>
+                    <br>
+                </div>
+
+                <!-- Web3 buttons -->
+                <div>
+                    <br><br>
+                    <button class="app-button" style="width: 135px; margin-right: 20px;">Approve</button>
+                    <button class="app-button" style="width: 135px;">Mint</button>
+                </div>
+            </div>
+        </div>
     </body>
+
+    <script type="text/javascript" src="app.js"></script>
+
 </html>
