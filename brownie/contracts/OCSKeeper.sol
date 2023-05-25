@@ -15,10 +15,16 @@ contract OCSKeeper is AutomationCompatibleInterface {
     function checkUpkeep(bytes calldata checkData) external view override returns (bool upkeepNeeded, bytes memory performData) {
         uint256 checkLength = abi.decode(checkData, (uint256));
         uint256 supply = OnChainStrategies.totalSupply();
-        uint256 startId = (block.timestamp % (supply / checkLength)) * checkLength;
+        uint256 startId;
         
-        if(supply < startId + checkLength) {
-            checkLength = supply - startId;
+        if(checkLength > supply) {
+            checkLength = supply;
+        } else {
+            startId = (block.timestamp % (supply / checkLength)) * checkLength;
+        
+            if(startId + checkLength > supply) {
+                checkLength = supply - startId;
+            }
         }
 
         uint256[] memory ids = OnChainStrategies.checkStrategies(startId, checkLength);

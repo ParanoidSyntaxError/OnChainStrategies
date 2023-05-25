@@ -1,6 +1,12 @@
 {
+    "contracts": {
+        "80001": {
+            "OCS": "0x3090F20593930fa175d3B73E89652718240d909a",
+            "Keeper": "0x16908752D48DDEaecc4B853BA62ae4c5a1570969"
+        }
+    },
     "tokens": {
-        "mumbai": [
+        "80001": [
             {
                 "label": "USDT",
                 "address": "0xA02f6adc7926efeBBd59Fd43A84f4E0c0c91e832"
@@ -20,7 +26,7 @@
         ]
     },
     "oracles":{
-        "mumbai": [
+        "80001": [
             {
                 "label": "BTC/USD",
                 "address": "0x007A22900a3B98143368Bd5906f8E17e9867581b"

@@ -26,6 +26,8 @@ const percentParams = document.getElementById("div-percent-params");
 const flatCustomOracleParent = document.getElementById("div-flat-custom-oracle");
 const percentCustomOracleParent = document.getElementById("div-percent-custom-oracle");
 
+const intervalInput = document.getElementById("input-interval");
+
 const selectFlatOracle = document.getElementById("select-flat-oracle");
 selectFlatOracle.addEventListener("change", () => {
     if(selectFlatOracle.value == "custom") {
@@ -49,28 +51,82 @@ selectStrategyType.addEventListener("change", () => {
     intervalParams.hidden = true;
     flatParams.hidden = true;
     percentParams.hidden = true;
-    switch(selectStrategyType.value) {
-        case "interval":
+    let strategyType = parseInt(selectStrategyType.value);
+    switch(strategyType) {
+        case 0:
             intervalParams.hidden = false;
             break;
-        case "flat":
+        case 1:
             flatParams.hidden = false;
             break;
-        case "percent":
+        case 2:
             percentParams.hidden = false;
             break;
     }
 });
 
-let addresses;
+const swapAmountInput = document.getElementById("input-swap-amount");
+const allocationInput = document.getElementById("input-allocation");
 
-initialize();
+const flatChangeInput = document.getElementById("input-flat-change");
+const flatFrequencyInput = document.getElementById("input-flat-frequency");
 
-async function initialize() {
-    const response = await fetch("../addresses.json");
-    addresses = await response.json();
+const percentChangeInput = document.getElementById("input-percent-change");
+const percentFrequencyInput = document.getElementById("input-percent-frequency");
 
-    const oracles = addresses["oracles"]["mumbai"];
+const approveButton = document.getElementById("btn-approve");
+approveButton.addEventListener("click", async () => {
+    const amount = await tokenAllowance(selectTokenIn.value) + BigInt(allocationInput.value);
+    await tokenApproval(selectTokenIn.value, amount);
+});
+
+const mintButton = document.getElementById("btn-mint");
+mintButton.addEventListener("click", async () => {
+    let strategyType = parseInt(selectStrategyType.value);
+
+    let baseStrategy = {
+        tokenIn : selectTokenIn.value,
+        tokenOut : selectTokenOut.value,
+        amount : swapAmountInput.value,
+        poolFee : 3000,
+        allocation : allocationInput.value
+    };
+
+    let data;
+
+    switch(strategyType) {
+        // Interval
+        case 0:
+            const latestTimestamp = await getLatestTimestamp();
+            data = {
+                interval : intervalInput.value,
+                lastTimestamp : latestTimestamp
+            };
+            break;
+        case 1:
+            data = {
+                aggregator : selectFlatOracle.value,
+                change : flatChangeInput.value,
+                lastRoundId : (await getLatestRoundId(selectFlatOracle.value)).toString(),
+                frequency : flatFrequencyInput.value
+            };
+            break;
+        case 2:
+            const change = percentChangeInput.value * 100;
+            data = {
+                aggregator : selectPercentOracle.value,
+                change : change,
+                lastRoundId : (await getLatestRoundId(selectPercentOracle.value)).toString(),
+                frequency : percentFrequencyInput.value
+            };
+            break;
+    }
+    
+    const txn = await mint(strategyType, getConnectedAddress(), true, baseStrategy, data);
+});
+
+web3Events.addEventListener("networkChanged", async () => {
+    const oracles = web3Addresses["oracles"][getChainId()];
     for(let i = 0; i < oracles.length; i++) {
         let option = document.createElement("option");
         option.innerHTML = oracles[i].label;
@@ -83,7 +139,7 @@ async function initialize() {
         selectPercentOracle.add(option);
     }
 
-    const tokens = addresses["tokens"]["mumbai"];
+    const tokens = web3Addresses["tokens"][getChainId()];
     for(let i = 0; i < tokens.length; i++) {
         let option = document.createElement("option");
         option.innerHTML = tokens[i].label;
@@ -95,4 +151,4 @@ async function initialize() {
         option.value = tokens[i].address;
         selectTokenOut.add(option);
     }
-}
+});

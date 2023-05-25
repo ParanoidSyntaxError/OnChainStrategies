@@ -25,7 +25,7 @@ def test_upkeep_interval():
 
         ocs.mint(0, deployer, True, (weth, env.link, amount, poolFee, allocation), intervalData, {"from": deployer})
 
-    checkParams = "0x" + encode(['uint256'], [length]).hex()
+    checkParams = "0x" + encode(['uint256'], [10]).hex()
     checkReturn = keeper.checkUpkeep(checkParams)
     assert checkReturn[0] == False
 

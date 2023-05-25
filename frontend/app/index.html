@@ -13,12 +13,14 @@
     <body class="background">
         <header style="position: sticky; top: 10; z-index: 1;">
             <a href="https://onchainstrategies.org">
-                <img src="../images/ocs_logo.svg" style="position: fixed; width: 100px; left: 3vw; top: 27px;">
+                <img src="../images/ocs_logo.svg" style="position: fixed; width: 100px; left: 40px; top: 27px;">
             </a>
+
+            <button id="btn-connect" class="app-button" style="position: fixed; float: right; right: 40px; top: 20px;">Connect</button>
         </header>
 
         <div style="margin-top: 10vh;">
-            <div style="background-color: #222222; width: 440px; margin: 0px auto; border-radius: 15px; padding: 25px;">
+            <div style="background-color: #222222; width: 440px; margin: 0px auto; margin-bottom: 100px; border-radius: 15px; padding: 25px;">
                 <!-- Title -->
                 <div class="app-title">
                     New Strategy
@@ -30,10 +32,10 @@
                     Strategy type
                 </div>
                 <select id="select-strategy-type" class="app-select" required>
-                    <option value="" disabled selected>Select option</option>
-                    <option value="interval">Interval</option>
-                    <option value="flat">Flat</option>
-                    <option value="percent">Percent</option>
+                    <option value="" disabled selected hidden>Select option</option>
+                    <option value="0">Interval</option>
+                    <option value="1">Flat</option>
+                    <option value="2">Percent</option>
                 </select>
                 <br><br>
 
@@ -42,7 +44,7 @@
                     Token in
                 </div>
                 <select id="select-token-in" class="app-select" required>
-                    <option value="" disabled selected>Select option</option>
+                    <option value="" disabled selected hidden>Select option</option>
                     <option value="custom">Custom</option>
                 </select>
                 <br><br>
@@ -56,7 +58,7 @@
                     Token out
                 </div>
                 <select id="select-token-out" class="app-select" required>
-                    <option value="" disabled selected>Select option</option>
+                    <option value="" disabled selected hidden>Select option</option>
                     <option value="custom">Custom</option>
                 </select>
                 <br>
@@ -64,6 +66,21 @@
                     <br>
                     <input type="text" placeholder="Custom token out" class="app-input">
                 </div>
+                <br>
+                
+                <!-- Swap amount -->
+                <div class="app-body">
+                    Swap amount
+                </div>
+                <input id="input-swap-amount" type="number" placeholder="Token amount" class="app-input" min="1" required value="10">
+                <br><br>
+
+                <!-- Allocation -->
+                <div class="app-body">
+                    Total swap allocation
+                </div>
+                <input id="input-allocation" type="number" placeholder="Token amount" class="app-input" min="1" required value="1000">
+                <br>
 
                 <!-- Interval params -->
                 <div id="div-interval-params" hidden>
@@ -75,7 +92,7 @@
                     <div class="app-body">
                         Interval duration
                     </div>
-                    <input type="number" placeholder="Seconds" class="app-input" required>
+                    <input id="input-interval" type="number" placeholder="Seconds" class="app-input" min="1" required value="604800">
                     <br>
                 </div>
 
@@ -90,7 +107,7 @@
                         Data feed
                     </div>
                     <select id="select-flat-oracle" class="app-select" required>
-                        <option value="" disabled selected>Select</option>
+                        <option value="" disabled selected hidden>Select option</option>
                         <option value="custom">Custom</option>
                     </select>
                     <br><br>
@@ -101,7 +118,12 @@
                     <div class="app-body">
                         Flat change
                     </div>
-                    <input type="number" placeholder="Amount" class="app-input" required>
+                    <input id="input-flat-change" type="number" placeholder="Amount" class="app-input" required>
+                    <br><br>
+                    <div class="app-body">
+                        Frequency
+                    </div>
+                    <input id="input-flat-frequency" type="number" placeholder="Frequency" class="app-input" min="1" required>
                     <br>
                 </div>
 
@@ -116,7 +138,7 @@
                         Data feed
                     </div>
                     <select id="select-percent-oracle" class="app-select" required>
-                        <option value="" disabled selected>Select</option>
+                        <option value="" disabled selected hidden>Select option</option>
                         <option value="custom">Custom</option>
                     </select>
                     <br><br>
@@ -127,20 +149,32 @@
                     <div class="app-body">
                         Percent change
                     </div>
-                    <input type="number" placeholder="Percent" class="app-input" required>
+                    <input id="input-percent-change" type="number" placeholder="Percent" class="app-input" required>
+                    <br><br>
+                    <div class="app-body">
+                        Frequency
+                    </div>
+                    <input id="input-percent-frequency" type="number" placeholder="Frequency" class="app-input" min="1" required>
                     <br>
                 </div>
 
                 <!-- Web3 buttons -->
                 <div>
                     <br><br>
-                    <button class="app-button" style="width: 135px; margin-right: 20px;">Approve</button>
-                    <button class="app-button" style="width: 135px;">Mint</button>
+                    <button id="btn-approve" class="app-button" style="width: 135px; margin-right: 20px;">Approve</button>
+                    <button id="btn-mint" class="app-button" style="width: 135px;">Mint</button>
                 </div>
             </div>
         </div>
     </body>
 
-    <script type="text/javascript" src="./app/app.js"></script>
+    <script type="text/javascript" src="../packages/ethers-5.6.umd.min.js"></script>
+    <script type="text/javascript" src="../packages/web3modal-1.9.10.js"></script>
+    <script type="text/javascript" src="../packages/evm-chains-0.2.0.min.js"></script>
+    <script type="text/javascript" src="../packages/web3-provider-1.8.0.min.js"></script>
+    <script type="text/javascript" src="../packages/fortmatic-2.4.0.js"></script>
 
+    <script type="text/javascript" src="../scripts/web3handler.js"></script>
+
+    <script type="text/javascript" src="./app.js"></script>
 </html>

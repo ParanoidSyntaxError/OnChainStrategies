@@ -2,3 +2,4 @@
 build
 .hypothesis
 __pycache__
+.pytest_cache
