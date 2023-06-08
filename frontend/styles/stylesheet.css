@@ -72,10 +72,13 @@ body, html {
     font-size: 21px;
     font-family: 'System', monospace;
     border-radius: 10px;
-    cursor:pointer;
 }
 .app-button:enabled:hover {
     filter: brightness(0.9);
+    cursor:pointer;
+}
+.app-button:disabled {
+    filter: brightness(0.35);
 }
 
 .button {

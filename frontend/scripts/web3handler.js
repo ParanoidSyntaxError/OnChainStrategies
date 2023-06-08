@@ -86,12 +86,10 @@ function getWeb3() {
 async function displayConnection() {
     if(getConnectedSigner() != undefined) {
 		connectButton.innerHTML = getConnectedAddress().toString().slice(0, 5) + "..." + getConnectedAddress().toString().slice(38, 42);
-		connectButton.style.backgroundColor = "grey";
 		connectButton.disabled = true;
 		
 	} else {
 		connectButton.innerHTML = "Connect";
-		connectButton.style.backgroundColor = "white";
 		connectButton.disabled = false;
 	}
 }
@@ -123,9 +121,14 @@ async function getLatestRoundId(aggregatorAddress) {
 }
 
 async function tokenApproval(tokenAddress, amount) {
-	const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, getConnectedSigner());
-	const receipt = await tokenContract.approve(web3Addresses["contracts"][getChainId()]["OCS"], amount);
-	const txn = await receipt.wait();
+	try {
+		const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, getConnectedSigner());
+		const receipt = await tokenContract.approve(web3Addresses["contracts"][getChainId()]["OCS"], amount);
+		const txn = await receipt.wait();
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 async function tokenAllowance(tokenAddress) {

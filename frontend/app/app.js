@@ -74,10 +74,16 @@ const flatFrequencyInput = document.getElementById("input-flat-frequency");
 const percentChangeInput = document.getElementById("input-percent-change");
 const percentFrequencyInput = document.getElementById("input-percent-frequency");
 
+let allocationApproved = false;
+
 const approveButton = document.getElementById("btn-approve");
 approveButton.addEventListener("click", async () => {
     const amount = await tokenAllowance(selectTokenIn.value) + BigInt(allocationInput.value);
-    await tokenApproval(selectTokenIn.value, amount);
+    let success = await tokenApproval(selectTokenIn.value, amount);
+    if(success == true) {
+        mintButton.disabled = false;
+        approveButton.disabled = true;
+    }
 });
 
 const mintButton = document.getElementById("btn-mint");
